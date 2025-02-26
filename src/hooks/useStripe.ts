@@ -14,14 +14,28 @@ export const useStripe = () => {
         throw new Error('Failed to load Stripe');
       }
 
-      // Create a checkout session on the server
-      const response = await fetch('/.netlify/functions/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ priceId }),
-      });
+      // // Create a checkout session on the server
+      // const response = await fetch('/.netlify/functions/create-checkout-session', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ priceId }),
+      // });
+      const isLocal = window.location.hostname === 'localhost';
+
+const response = await fetch(
+  isLocal
+    ? 'http://localhost:5001/create-checkout-session'  // Local Express server
+    : '/.netlify/functions/create-checkout-session',   // Netlify function in production
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ priceId }),
+  }
+);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
